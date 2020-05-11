@@ -10,8 +10,12 @@
 namespace Mongo
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
+
+    using MongoDB.Bson;
+    using MongoDB.Driver;
 
     using NLog;
 
@@ -43,10 +47,28 @@ namespace Mongo
         {
             Logger.Info("Start");
 
-            foreach (string fileName in FileNames)
+            try
             {
-                string fileContent = await ReadFromFile(fileName);
-                Logger.Debug($"Из файла {fileName} прочитано {fileContent.Length} знаков");
+                var client = new MongoClient();
+                var database = client.GetDatabase("local");
+                var databaseFiles = database.GetCollection<BsonDocument>("files");
+
+                foreach (string fileName in FileNames)
+                {
+                    string fileContent = await ReadFromFile(fileName);
+                    Logger.Debug($"Из файла {fileName} прочитано {fileContent.Length} знаков");
+
+                    if (!string.IsNullOrWhiteSpace(fileContent))
+                    {
+                        BsonDocument fileDocument = new BsonDocument(new Dictionary<string, object> { { fileName, fileContent } });
+                        await databaseFiles.InsertOneAsync(fileDocument);
+                        Logger.Debug($"Файл {fileName} успешно добавлен");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
             }
             
             Console.ReadKey();
