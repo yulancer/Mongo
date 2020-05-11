@@ -12,6 +12,8 @@ namespace Mongo
     using System;
     using System.Threading.Tasks;
 
+    using NLog;
+
     /// <summary>
     /// The program.
     /// </summary>
@@ -21,6 +23,11 @@ namespace Mongo
         /// имена файлов, которые необходимо прочесть.
         /// </summary>
         private static string[] FileNames { get; } = { "books.json", "books.csv", "books.xml" };
+
+        /// <summary>
+        /// The logger.
+        /// </summary>
+        private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// The main.
@@ -33,8 +40,9 @@ namespace Mongo
         /// </returns>
         public static async Task Main(string[] args)
         {
-            Console.WriteLine("Start");
+            Logger.Info("Start");
             Console.ReadKey();
+            Logger.Info("Finish");
         }
     }
 }
