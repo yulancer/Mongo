@@ -10,6 +10,7 @@
 namespace Mongo
 {
     using System;
+    using System.IO;
     using System.Threading.Tasks;
 
     using NLog;
@@ -41,8 +42,43 @@ namespace Mongo
         public static async Task Main(string[] args)
         {
             Logger.Info("Start");
+
+            foreach (string fileName in FileNames)
+            {
+                string fileContent = await ReadFromFile(fileName);
+                Logger.Debug($"Из файла {fileName} прочитано {fileContent.Length} знаков");
+            }
+            
             Console.ReadKey();
             Logger.Info("Finish");
+        }
+
+        /// <summary>
+        /// The read from file.
+        /// </summary>
+        /// <param name="fileName">
+        /// The file name.
+        /// </param>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        private static async Task<string> ReadFromFile(string fileName)
+        {
+            try
+            {   // Open the text file using a stream reader.
+                using (StreamReader sr = new StreamReader(fileName))
+                {
+                    // Read the stream to a string, and write the string to the console.
+                    string line = await sr.ReadToEndAsync();
+                    Logger.Trace(line);
+                    return line;
+                }
+            }
+            catch (IOException e)
+            {
+                Logger.Error(e);
+                return string.Empty;
+            }
         }
     }
 }
