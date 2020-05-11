@@ -27,7 +27,7 @@ namespace Mongo
         /// <summary>
         /// имена файлов, которые необходимо прочесть.
         /// </summary>
-        private static string[] FileNames { get; } = { "books.json", "books.csv", "books.xml" };
+        private static string[] FileNames { get; } = { "books.json", "books.csv", "books.xml", "books.txt" };
 
         /// <summary>
         /// The logger.
@@ -57,6 +57,13 @@ namespace Mongo
                 var client = new MongoClient();
                 var database = client.GetDatabase("local");
                 var databaseFiles = database.GetCollection<BsonDocument>(MongoCollectionName);
+
+                // очистим коллекцию
+                long count = await databaseFiles.CountDocumentsAsync(new BsonDocument());
+                if (count > 0)
+                {
+                    await databaseFiles.DeleteManyAsync(new BsonDocument());
+                }
 
                 foreach (string fileName in FileNames)
                 {
