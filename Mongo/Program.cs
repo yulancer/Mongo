@@ -35,6 +35,11 @@ namespace Mongo
         private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
         /// <summary>
+        /// Gets the mongo collection name.
+        /// </summary>
+        private static string MongoCollectionName { get; } = "files";
+
+        /// <summary>
         /// The main.
         /// </summary>
         /// <param name="args">
@@ -51,7 +56,7 @@ namespace Mongo
             {
                 var client = new MongoClient();
                 var database = client.GetDatabase("local");
-                var databaseFiles = database.GetCollection<BsonDocument>("files");
+                var databaseFiles = database.GetCollection<BsonDocument>(MongoCollectionName);
 
                 foreach (string fileName in FileNames)
                 {
@@ -60,9 +65,10 @@ namespace Mongo
 
                     if (!string.IsNullOrWhiteSpace(fileContent))
                     {
-                        BsonDocument fileDocument = new BsonDocument(new Dictionary<string, object> { { fileName, fileContent } });
+                        string keyName = fileName.Replace(".", string.Empty);
+                        BsonDocument fileDocument = new BsonDocument(new Dictionary<string, object> { { keyName, fileContent } });
                         await databaseFiles.InsertOneAsync(fileDocument);
-                        Logger.Debug($"Файл {fileName} успешно добавлен");
+                        Logger.Debug($"Файл {keyName} успешно добавлен");
                     }
                 }
             }
