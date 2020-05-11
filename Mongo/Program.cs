@@ -71,12 +71,15 @@ namespace Mongo
                         Logger.Debug($"Файл {keyName} успешно добавлен");
                     }
                 }
+
+                var allDocumentsInCollection = await databaseFiles.FindAsync(new BsonDocument());
+                await allDocumentsInCollection.ForEachAsync(document => { Logger.Info(document.ToString()); });
             }
             catch (Exception e)
             {
                 Logger.Error(e);
             }
-            
+
             Console.ReadKey();
             Logger.Info("Finish");
         }
